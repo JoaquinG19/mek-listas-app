@@ -76,7 +76,7 @@ export default function PeriodoScreen({ empresaId }) {
           onPress={reloadScreen}
           disabled={reloading}
           style={{
-            backgroundColor: "#b95eacff",
+            backgroundColor: "#008f39",
             paddingVertical: 12,
             borderRadius: 8,
             alignItems: "center",

@@ -1,7 +1,17 @@
 // 📂 screens/AsistenciaScreen.tsx
 import React, { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { View, Text, Button, StyleSheet, ActivityIndicator, Alert, ScrollView, Modal, TextInput } from "react-native";
+import {
+  View,
+  Text,
+  Button,
+  StyleSheet,
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  Modal,
+  TextInput,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
 import { api } from "../utils/api";
@@ -33,9 +43,13 @@ export default function AsistenciaScreen({ route }) {
   const navigation = useNavigation();
 
   const [turnos, setTurnos] = useState<Turnos>({});
-  const [registros, setRegistros] = useState<{ [key: string]: RegistroAsistencia }>({});
-  
-  const [timers, setTimers] = useState<{ [key: string]: { break: string; lunch: string } }>({
+  const [registros, setRegistros] = useState<{
+    [key: string]: RegistroAsistencia;
+  }>({});
+
+  const [timers, setTimers] = useState<{
+    [key: string]: { break: string; lunch: string };
+  }>({
     am: { break: "-", lunch: "-" },
     pm: { break: "-", lunch: "-" },
     noc: { break: "-", lunch: "-" },
@@ -59,7 +73,10 @@ export default function AsistenciaScreen({ route }) {
         Alert.alert("Error", res.data.message);
       }
     } catch (err: any) {
-      Alert.alert("Error", err.response?.data?.message || "Fallo en la verificación");
+      Alert.alert(
+        "Error",
+        err.response?.data?.message || "Fallo en la verificación"
+      );
     }
   };
 
@@ -94,9 +111,12 @@ export default function AsistenciaScreen({ route }) {
     fetchData();
   }, [empId, fecha, grupoIds]);
 
-
   // Función para marcar timers genéricos
-  const calcTimer = (reg: RegistroAsistencia, timeField: string, startField: string) => {
+  const calcTimer = (
+    reg: RegistroAsistencia,
+    timeField: string,
+    startField: string
+  ) => {
     if (!reg) return "-";
     let acum = reg[timeField] ?? "00:00:00";
     if (reg[startField]) {
@@ -116,9 +136,18 @@ export default function AsistenciaScreen({ route }) {
   useEffect(() => {
     const interval = setInterval(() => {
       setTimers({
-        am: { break: calcTimer(registros.am, "tiempo_descanso", "break_start"), lunch: calcTimer(registros.am, "tiempo_almuerzo", "lunch_start") },
-        pm: { break: calcTimer(registros.pm, "tiempo_descanso", "break_start"), lunch: calcTimer(registros.pm, "tiempo_almuerzo", "lunch_start") },
-        noc: { break: calcTimer(registros.noc, "tiempo_descanso", "break_start"), lunch: calcTimer(registros.noc, "tiempo_almuerzo", "lunch_start") },
+        am: {
+          break: calcTimer(registros.am, "tiempo_descanso", "break_start"),
+          lunch: calcTimer(registros.am, "tiempo_almuerzo", "lunch_start"),
+        },
+        pm: {
+          break: calcTimer(registros.pm, "tiempo_descanso", "break_start"),
+          lunch: calcTimer(registros.pm, "tiempo_almuerzo", "lunch_start"),
+        },
+        noc: {
+          break: calcTimer(registros.noc, "tiempo_descanso", "break_start"),
+          lunch: calcTimer(registros.noc, "tiempo_almuerzo", "lunch_start"),
+        },
       });
     }, 1000);
     return () => clearInterval(interval);
@@ -137,36 +166,45 @@ export default function AsistenciaScreen({ route }) {
     const reg = registros[tipo];
     if (!turno) return null;
 
-    const breakLabel = reg?.break_start ? `Terminar descanso ${tipo.toUpperCase()}` : `Iniciar descanso ${tipo.toUpperCase()}`;
-    const lunchLabel = reg?.lunch_start ? `Terminar almuerzo ${tipo.toUpperCase()}` : `Iniciar almuerzo ${tipo.toUpperCase()}`;
+    const breakLabel = reg?.break_start
+      ? `Terminar descanso ${tipo.toUpperCase()}`
+      : `Iniciar descanso ${tipo.toUpperCase()}`;
+    const lunchLabel = reg?.lunch_start
+      ? `Terminar almuerzo ${tipo.toUpperCase()}`
+      : `Iniciar almuerzo ${tipo.toUpperCase()}`;
 
     return (
       <View style={styles.turnoContainer}>
         <Text style={styles.subtitle}>
           Turno {tipo.toUpperCase()} ({turno.start} - {turno.end})
         </Text>
-        
+
         {/* Ingreso */}
         <View style={styles.row}>
-          <Button
-            title={`Marcar ingreso ${tipo.toUpperCase()}`}
-            onPress={async () => {
-              try {
-                const res = await api.post("/asistencia/marcar-ingreso", {
-                  user_id: empId,
-                  fecha,
-                  tipo,
-                  grupo_ids: grupoIds,
-                  supervisor_ids: supervisorIds,
-                });
-                Alert.alert("Éxito", res.data.message);
-                setRegistros({ ...registros, [tipo]: res.data.detalle });
-              } catch (err) {
-                Alert.alert("Error", err.response?.data?.message || "Error al marcar ingreso");
-              }
-            }}
-            disabled={!!reg?.hora_ingreso}
-          />
+          <View style={styles.btnWrap}>
+            <Button
+              title={`Marcar ingreso ${tipo.toUpperCase()}`}
+              onPress={async () => {
+                try {
+                  const res = await api.post("/asistencia/marcar-ingreso", {
+                    user_id: empId,
+                    fecha,
+                    tipo,
+                    grupo_ids: grupoIds,
+                    supervisor_ids: supervisorIds,
+                  });
+                  Alert.alert("Éxito", res.data.message);
+                  setRegistros({ ...registros, [tipo]: res.data.detalle });
+                } catch (err) {
+                  Alert.alert(
+                    "Error",
+                    err.response?.data?.message || "Error al marcar ingreso"
+                  );
+                }
+              }}
+              disabled={!!reg?.hora_ingreso}
+            />
+          </View>
           <Text>{reg?.hora_ingreso ?? "-"}</Text>
         </View>
 
@@ -174,89 +212,126 @@ export default function AsistenciaScreen({ route }) {
           <>
             {/* Descanso */}
             <View style={styles.row}>
-              <Button
-                title={breakLabel}
-                color="orange"
-                onPress={async () => {
-                  try {
-                    const res = await api.post("/asistencia/iniciar-descanso", {
-                      user_id: empId,
-                      fecha,
-                      tipo,       // "am" | "pm" | "noc"
-                      grupo_ids: grupoIds,
-                      supervisor_ids: supervisorIds,
-                    });
+              <View style={styles.btnWrap}>
+                <Button
+                  title={breakLabel}
+                  color="orange"
+                  onPress={async () => {
+                    try {
+                      const res = await api.post(
+                        "/asistencia/iniciar-descanso",
+                        {
+                          user_id: empId,
+                          fecha,
+                          tipo, // "am" | "pm" | "noc"
+                          grupo_ids: grupoIds,
+                          supervisor_ids: supervisorIds,
+                        }
+                      );
 
-                    Alert.alert("Éxito", res.data.message);
+                      Alert.alert("Éxito", res.data.message);
 
-                    // 🔥 Actualizamos el registro con lo que devuelve la API
-                    setRegistros({ ...registros, [tipo]: res.data.detalle });
-                  } catch (err: any) {
-                    Alert.alert("Error", err.response?.data?.message || "Error al marcar descanso");
-                  }
-                }}
-                disabled={!!reg?.hora_salida}
-              />
-              <Text style={(parseInt(timers[tipo].break.split(":")[0], 10) * 60 + parseInt(timers[tipo].break.split(":")[1], 10)) > 30 ? { color: "red" } : {}}>
+                      // 🔥 Actualizamos el registro con lo que devuelve la API
+                      setRegistros({ ...registros, [tipo]: res.data.detalle });
+                    } catch (err: any) {
+                      Alert.alert(
+                        "Error",
+                        err.response?.data?.message ||
+                          "Error al marcar descanso"
+                      );
+                    }
+                  }}
+                  disabled={!!reg?.hora_salida}
+                />
+              </View>
+              <Text
+                style={
+                  parseInt(timers[tipo].break.split(":")[0], 10) * 60 +
+                    parseInt(timers[tipo].break.split(":")[1], 10) >
+                  30
+                    ? { color: "red" }
+                    : {}
+                }
+              >
                 {timers[tipo].break}
               </Text>
             </View>
 
             {/* Almuerzo */}
             <View style={styles.row}>
-              <Button
-                title={lunchLabel}
-                color="blue"
-                onPress={async () => {
-                  try {
-                    const res = await api.post("/asistencia/iniciar-almuerzo", {
-                      user_id: empId,
-                      fecha,
-                      tipo,
-                      grupo_ids: grupoIds,
-                      supervisor_ids: supervisorIds,
-                    });
-                    Alert.alert("Éxito", res.data.message);
+              <View style={styles.btnWrap}>
+                <Button
+                  title={lunchLabel}
+                  color="blue"
+                  onPress={async () => {
+                    try {
+                      const res = await api.post(
+                        "/asistencia/iniciar-almuerzo",
+                        {
+                          user_id: empId,
+                          fecha,
+                          tipo,
+                          grupo_ids: grupoIds,
+                          supervisor_ids: supervisorIds,
+                        }
+                      );
+                      Alert.alert("Éxito", res.data.message);
 
-                    // 👇 Actualizar el registro con lo que devuelve la API
-                    setRegistros({ ...registros, [tipo]: res.data.detalle });
-                  } catch (err: any) {
-                    Alert.alert("Error", err.response?.data?.message || "Error al marcar almuerzo");
-                  }
-                }}
-                disabled={!!reg?.hora_salida}
-              />
-
-              <Text style={(parseInt(timers[tipo].lunch.split(":")[0], 10) * 60 + parseInt(timers[tipo].lunch.split(":")[1], 10)) > 30 ? { color: "red" } : {}}>
+                      // 👇 Actualizar el registro con lo que devuelve la API
+                      setRegistros({ ...registros, [tipo]: res.data.detalle });
+                    } catch (err: any) {
+                      Alert.alert(
+                        "Error",
+                        err.response?.data?.message ||
+                          "Error al marcar almuerzo"
+                      );
+                    }
+                  }}
+                  disabled={!!reg?.hora_salida}
+                />
+              </View>
+              <Text
+                style={
+                  parseInt(timers[tipo].lunch.split(":")[0], 10) * 60 +
+                    parseInt(timers[tipo].lunch.split(":")[1], 10) >
+                  30
+                    ? { color: "red" }
+                    : {}
+                }
+              >
                 {timers[tipo].lunch}
               </Text>
             </View>
 
             {/* Salida */}
             <View style={styles.row}>
-              <Button
-                title={`Marcar salida ${tipo.toUpperCase()}`}
-                color="red"
-                disabled={!!reg?.hora_salida}
-                onPress={async () => {
-                  try {
-                    const res = await api.post("/asistencia/marcar-salida", {
-                      user_id: empId,
-                      fecha,
-                      tipo,
-                      grupo_ids: grupoIds,
-                      supervisor_ids: supervisorIds,
-                    });
-                    Alert.alert("Éxito", res.data.message);
+              <View style={styles.btnWrap}>
+                <Button
+                  title={`Marcar salida ${tipo.toUpperCase()}`}
+                  color="red"
+                  disabled={!!reg?.hora_salida}
+                  onPress={async () => {
+                    try {
+                      const res = await api.post("/asistencia/marcar-salida", {
+                        user_id: empId,
+                        fecha,
+                        tipo,
+                        grupo_ids: grupoIds,
+                        supervisor_ids: supervisorIds,
+                      });
+                      Alert.alert("Éxito", res.data.message);
 
-                    // 👇 Actualizar el registro local con lo que devuelve la API
-                    setRegistros({ ...registros, [tipo]: res.data.detalle });
-                  } catch (err: any) {
-                    Alert.alert("Error", err.response?.data?.message || "Error al marcar salida");
-                  }
-                }}
-              />
-
+                      // 👇 Actualizar el registro local con lo que devuelve la API
+                      setRegistros({ ...registros, [tipo]: res.data.detalle });
+                    } catch (err: any) {
+                      Alert.alert(
+                        "Error",
+                        err.response?.data?.message || "Error al marcar salida"
+                      );
+                    }
+                  }}
+                />
+              </View>
               <Text>{reg?.hora_salida ?? "-"}</Text>
             </View>
           </>
@@ -272,7 +347,9 @@ export default function AsistenciaScreen({ route }) {
         <Modal visible={!isVerified} transparent animationType="slide">
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
-              <Text style={{ fontSize: 18, marginBottom: 8 }}>Ingrese su contraseña</Text>
+              <Text style={{ fontSize: 18, marginBottom: 8 }}>
+                Ingrese su contraseña
+              </Text>
               <TextInput
                 placeholder="Contraseña"
                 secureTextEntry
@@ -280,31 +357,43 @@ export default function AsistenciaScreen({ route }) {
                 onChangeText={setPassword}
                 style={styles.input}
               />
-              <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-                <Button title="Cancelar" color="gray" onPress={() => navigation.goBack()} />
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Button
+                  title="Cancelar"
+                  color="gray"
+                  onPress={() => navigation.goBack()}
+                />
                 <Button title="Confirmar" onPress={handleVerify} />
               </View>
             </View>
           </View>
         </Modal>
       )}
-    <ScrollView style={styles.container}>
-      <Text style={styles.title}>Marcar asistencia para:</Text>
-      <Text>
-        {empleado?.name ?? "-"} {empleado?.apellido_paterno ?? "-"}
-      </Text>
-      <Text>Fecha: {fecha}</Text>
-
-      {renderTurno("am")}
-      {renderTurno("pm")}
-      {renderTurno("noc")}
-
-      <View style={{ marginTop: 16 }}>
+      <ScrollView style={styles.container}>
+        <Text style={styles.title}>Marcar asistencia para:</Text>
         <Text>
-          <Text style={{ fontWeight: "bold" }}>Horas regulares asignadas:</Text> {asistencia?.horas_regulares ?? "-"}
+          {empleado?.name ?? "-"} {empleado?.apellido_paterno ?? "-"}
         </Text>
-      </View>
-    </ScrollView>
+        <Text>Fecha: {fecha}</Text>
+
+        {renderTurno("am")}
+        {renderTurno("pm")}
+        {renderTurno("noc")}
+
+        <View style={{ marginTop: 16 }}>
+          <Text>
+            <Text style={{ fontWeight: "bold" }}>
+              Horas regulares asignadas:
+            </Text>{" "}
+            {asistencia?.horas_regulares ?? "-"}
+          </Text>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -341,5 +430,8 @@ const styles = StyleSheet.create({
     padding: 8,
     marginBottom: 16,
   },
-  safeArea: { flex: 1, backgroundColor: "#fff", paddingTop: -30},
+  safeArea: { flex: 1, backgroundColor: "#fff", paddingTop: -30 },
+  btnWrap: {
+    width: 200, // 👈 mismo ancho para todos (ajusta a tu gusto)
+  },
 });

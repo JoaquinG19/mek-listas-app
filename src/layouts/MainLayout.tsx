@@ -70,6 +70,8 @@ function Tabs({ empresaId }: { empresaId: number }) {
             color={color}
           />
         )}
+        // ✅ ocultar labels (solo iconos)
+        renderLabel={() => null}
         getLabelText={({ route }) => route.title}
         activeColor="#fff"
         inactiveColor="#fff"

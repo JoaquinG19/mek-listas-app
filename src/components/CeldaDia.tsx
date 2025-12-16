@@ -64,7 +64,7 @@ export default function CeldaDia({ emp, dia, card, supervisorIds }) {
   return (
     <View style={[styles.cell, { width: 140 }]}>
       {puedeMostrar ? (
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
           <BotonAgregar
             active={dia.active}
             onPress={() =>
