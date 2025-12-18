@@ -1,6 +1,7 @@
 // 📂 screens/AsistenciaScreen.tsx
 import React, { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
+import BootstrapButton from "../components/BootstrapButton";
 import {
   View,
   Text,
@@ -15,6 +16,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
 import { api } from "../utils/api";
+import { Divider, Icon } from "react-native-paper";
+
 
 type RegistroAsistencia = {
   hora_ingreso?: string;
@@ -182,8 +185,10 @@ export default function AsistenciaScreen({ route }) {
         {/* Ingreso */}
         <View style={styles.row}>
           <View style={styles.btnWrap}>
-            <Button
+            <BootstrapButton
               title={`Marcar ingreso ${tipo.toUpperCase()}`}
+              variant="primary"
+              disabled={!!reg?.hora_ingreso}
               onPress={async () => {
                 try {
                   const res = await api.post("/asistencia/marcar-ingreso", {
@@ -195,17 +200,18 @@ export default function AsistenciaScreen({ route }) {
                   });
                   Alert.alert("Éxito", res.data.message);
                   setRegistros({ ...registros, [tipo]: res.data.detalle });
-                } catch (err) {
-                  Alert.alert(
-                    "Error",
-                    err.response?.data?.message || "Error al marcar ingreso"
-                  );
+                } catch (err: any) {
+                  Alert.alert("Error", "Error al marcar ingreso");
                 }
               }}
-              disabled={!!reg?.hora_ingreso}
             />
+
           </View>
-          <Text>{reg?.hora_ingreso ?? "-"}</Text>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Icon source="clock-in" size={18} color="#4799cfff" />
+            <Text style={styles.textTime}>  {reg?.hora_ingreso ?? "-"}</Text>
+          </View>
+
         </View>
 
         {reg?.hora_ingreso && (
@@ -213,9 +219,9 @@ export default function AsistenciaScreen({ route }) {
             {/* Descanso */}
             <View style={styles.row}>
               <View style={styles.btnWrap}>
-                <Button
+                <BootstrapButton
                   title={breakLabel}
-                  color="orange"
+                  variant="warning"
                   onPress={async () => {
                     try {
                       const res = await api.post(
@@ -244,25 +250,41 @@ export default function AsistenciaScreen({ route }) {
                   disabled={!!reg?.hora_salida}
                 />
               </View>
-              <Text
-                style={
-                  parseInt(timers[tipo].break.split(":")[0], 10) * 60 +
-                    parseInt(timers[tipo].break.split(":")[1], 10) >
-                  30
-                    ? { color: "red" }
-                    : {}
-                }
-              >
-                {timers[tipo].break}
-              </Text>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Icon
+                  source="coffee"
+                  size={18}
+                  color={
+                    parseInt(timers[tipo].break.split(":")[0], 10) * 60 +
+                      parseInt(timers[tipo].break.split(":")[1], 10) >
+                    30
+                      ? "red"
+                      : "#eb9c26ff"
+                  }
+                />
+                <Text
+                  style={[
+                    styles.textTime,
+                    parseInt(timers[tipo].break.split(":")[0], 10) * 60 +
+                      parseInt(timers[tipo].break.split(":")[1], 10) >
+                    30
+                      ? { color: "red" }
+                      : {},
+                  ]}
+                >
+                  {" "}
+                  {timers[tipo].break}
+                </Text>
+              </View>
+
             </View>
 
             {/* Almuerzo */}
             <View style={styles.row}>
               <View style={styles.btnWrap}>
-                <Button
+                <BootstrapButton
                   title={lunchLabel}
-                  color="blue"
+                  variant="success"
                   onPress={async () => {
                     try {
                       const res = await api.post(
@@ -290,25 +312,41 @@ export default function AsistenciaScreen({ route }) {
                   disabled={!!reg?.hora_salida}
                 />
               </View>
-              <Text
-                style={
-                  parseInt(timers[tipo].lunch.split(":")[0], 10) * 60 +
-                    parseInt(timers[tipo].lunch.split(":")[1], 10) >
-                  30
-                    ? { color: "red" }
-                    : {}
-                }
-              >
-                {timers[tipo].lunch}
-              </Text>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Icon
+                  source="silverware-fork-knife"
+                  size={16}
+                  color={
+                    parseInt(timers[tipo].break.split(":")[0], 10) * 60 +
+                      parseInt(timers[tipo].break.split(":")[1], 10) >
+                    30
+                      ? "red"
+                      : "#4caf50"
+                  }
+                />
+                <Text
+                  style={[
+                    styles.textTime,
+                    parseInt(timers[tipo].lunch.split(":")[0], 10) * 60 +
+                      parseInt(timers[tipo].lunch.split(":")[1], 10) >
+                    30
+                      ? { color: "red" }
+                      : {},
+                  ]}
+                >
+                  {" "}
+                  {timers[tipo].lunch}
+                </Text>
+              </View>
+
             </View>
 
             {/* Salida */}
             <View style={styles.row}>
               <View style={styles.btnWrap}>
-                <Button
+                <BootstrapButton
                   title={`Marcar salida ${tipo.toUpperCase()}`}
-                  color="red"
+                  variant="danger"
                   disabled={!!reg?.hora_salida}
                   onPress={async () => {
                     try {
@@ -332,7 +370,11 @@ export default function AsistenciaScreen({ route }) {
                   }}
                 />
               </View>
-              <Text>{reg?.hora_salida ?? "-"}</Text>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Icon source="clock-out" size={18} color="#ff746aff" />
+                <Text style={styles.textTime}>  {reg?.hora_salida ?? "-"}</Text>
+              </View>
+
             </View>
           </>
         )}
@@ -375,24 +417,51 @@ export default function AsistenciaScreen({ route }) {
         </Modal>
       )}
       <ScrollView style={styles.container}>
-        <Text style={styles.title}>Marcar asistencia para:</Text>
-        <Text>
-          {empleado?.name ?? "-"} {empleado?.apellido_paterno ?? "-"}
-        </Text>
-        <Text>Fecha: {fecha}</Text>
+        <View style={{ marginBottom: 12 }}>
+        <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 4 }}>
+          <Icon source="account-circle" size={20} color="#555" />
+          <Text style={styles.title}>  Asistencia</Text>
+        </View>
+
+        <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 2 }}>
+          <Icon source="account" size={16} color="#777" />
+          <Text style={styles.textStrong}>
+            {" "}
+            {empleado?.name ?? "-"} {empleado?.apellido_paterno ?? "-"}
+          </Text>
+        </View>
+
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Icon source="calendar" size={16} color="#777" />
+          <Text style={styles.textMuted}>  {fecha}</Text>
+        </View>
+      </View>
+
+      <Divider />
+
 
         {renderTurno("am")}
         {renderTurno("pm")}
         {renderTurno("noc")}
 
-        <View style={{ marginTop: 16 }}>
-          <Text>
-            <Text style={{ fontWeight: "bold" }}>
-              Horas regulares asignadas:
-            </Text>{" "}
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            backgroundColor: "#f5f5f5",
+            padding: 16,
+            borderRadius: 8,
+            marginTop: 2,
+            marginBottom: 25,
+          }}
+        >
+          <Icon source="timer-outline" size={20} color="#333" />
+          <Text style={{ marginLeft: 8 }}>
+            <Text style={{ fontWeight: "bold" }}>Horas regulares asignadas: </Text>
             {asistencia?.horas_regulares ?? "-"}
           </Text>
         </View>
+
       </ScrollView>
     </SafeAreaView>
   );
@@ -434,4 +503,20 @@ const styles = StyleSheet.create({
   btnWrap: {
     width: 200, // 👈 mismo ancho para todos (ajusta a tu gusto)
   },
+
+  textStrong: {
+    fontSize: 15,
+    fontWeight: "600",
+  },
+
+  textMuted: {
+    fontSize: 13,
+    color: "#777",
+  },
+
+  textTime: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+
 });

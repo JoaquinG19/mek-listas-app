@@ -7,7 +7,7 @@ export default function SupervisorCard({ supervisor, grupo }) {
     <Card style={styles.card}>
       <Card.Title
         title={`Supervisor: ${supervisor?.name ?? "—"} ${supervisor?.apellido_paterno ?? "—"}`}
-        subtitle={`PP-${grupo?.periodos_id ?? "—"}`}
+        subtitle={grupo?.periodos?.titulo ?? "—"}
         titleStyle={styles.title}
         subtitleStyle={styles.subtitle}
         style={styles.cardTitle}
